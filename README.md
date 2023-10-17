@@ -150,24 +150,72 @@ Penyelesaian :
 3. Konfigurasi file pada directory berikut /etc/bind/jarkom/arjuna.e27.com
    ```
 	;
-; BIND data file for local loopback interface
-;
-$TTL    604800
-@       IN      SOA     arjuna.e27.com. root.arjuna.e27.com. (
+	; BIND data file for local loopback interface
+	;
+	$TTL    604800
+	@       IN      SOA     arjuna.e27.com. root.arjuna.e27.com. (
                               2         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
                          604800 )       ; Negative Cache TTL
-;
-@       IN      NS      arjuna.e27.com.
-@       IN      A       10.50.2.2 ; IP arjuna
-www     IN      CNAME   arjuna.e27.com.
-@       IN      AAAA    ::1
-
+	;
+	@       IN      NS      arjuna.e27.com.
+	@       IN      A       10.50.2.2 ; IP arjuna
+	www     IN      CNAME   arjuna.e27.com.
+	@       IN      AAAA    ::1
    ```
+
+4. Masukkan IP DNS pada nameserver node client (Nakula)
+   ```
+	echo nameserver 192.168.122.1 > /etc/resolv.conf
+   ```
+
+Untuk melakukan pengecekan apakah berhasil atau tidak, Lakukan ping menuju arjuna.e27.com pada node client.
+
 # Soal 3
 Dengan cara yang sama seperti soal nomor 2, buatlah website utama dengan akses ke abimanyu.yyy.com dan alias www.abimanyu.yyy.com.
+
+1. Sama halnya seperti soal nomor 2, Tambahkan konfigurasi berikut pada file /etc/bind/named.conf.local pada node Yudhistira
+   ```
+	zone "arjuna.e27.com" {
+        type master;
+        file "/etc/bind/jarkom/arjuna.e27.com";
+	};
+
+	zone "abimanyu.e27.com" {
+        type master;
+        file "/etc/bind/jarkom/abimanyu.e27.com";
+	};
+
+   ```
+2. Konfigurasi pada /etc/bind/jarkom/abimanyu.e27.com
+   ```
+	;
+	; BIND data file for local loopback interface
+	;
+	$TTL    604800
+	@       IN      SOA     abimanyu.e27.com. root.abimanyu.e27.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+	;
+	@       IN      NS      abimanyu.e27.com.
+	@       IN      A       10.50.2.4 ; IP Abimanyu
+	www     IN      CNAME   abimanyu.e27.com.
+	@       IN      AAAA    ::1
+
+
+   ```
+
+3. Restart bind9
+   ```
+	service bind9 restart
+   ```
+
+Untuk melakukan pengecekan apakah berhasil atau tidak, Lakukan ping menuju arjuna.e27.com atau abimanyu.e27.com pada node client.
 
 # Soal 4
 Kemudian, karena terdapat beberapa web yang harus di-deploy, buatlah subdomain parikesit.abimanyu.yyy.com yang diatur DNS-nya di Yudhistira dan mengarah ke Abimanyu.
