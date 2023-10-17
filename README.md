@@ -249,7 +249,62 @@ Untuk melakukan pengecekan apakah berhasil atau tidak, Lakukan ping menuju parik
 Buat juga reverse domain untuk domain utama.
 
 Penyelesaian :
+1. Tambahkan konfigurasi zone reverse di /etc/bind/named.conf.local pada node Yudhistira
+   ```
+	zone "arjuna.e27.com" {
+        type master;
+        file "/etc/bind/jarkom/arjuna.e27.com";
+	};
 
+	zone "abimanyu.e27.com" {
+        type master;
+        file "/etc/bind/jarkom/abimanyu.e27.com";
+	};
+
+   	zone "2.50.10.in-addr.arpa" {
+    	type master;
+    	file "/etc/bind/jarkom/2.50.10.in-addr.arpa";
+	};
+   ```
+
+2. Konfigurasi pada file /etc/bind/jarkom/2.50.10.in-addr.arpa
+   ```
+	;
+	; BIND data file for local loopback interface
+	;
+	$TTL    604800
+	@       IN      SOA     arjuna.e27.com. root.arjuna.e27.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+	;
+	2.50.10.in-addr.arpa.   	IN      NS      arjuna.e27.com.
+	4                         	IN      PTR     arjuna.e27.com.
+
+   ```
+
+   (Untuk reverse domain abimanyu lakukan hal yang sama seperti pada domain reverse arjuna)
+
+3. Install DNS Utils pada node client untuk melakukan pengecekan
+   ```
+	echo nameserver 192.168.122.1 > /etc/resolv.conf
+
+	apt-get update
+	apt-get install dnsutils
+
+	echo nameserver 10.50.3.2 > /etc/resolv.conf
+
+   ```
+
+4. Gunakan command host untuk mengecek keberhasilan reverse
+   ```
+	host -t PTR 10.50.2.3
+   ```
+   ```
+	host -t PTR 10.50.2.4
+   ```
 
 # Soal 6
 Agar dapat tetap dihubungi ketika DNS Server Yudhistira bermasalah, buat juga Werkudara sebagai DNS Slave untuk domain utama.
