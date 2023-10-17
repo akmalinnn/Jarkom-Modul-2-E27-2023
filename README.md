@@ -309,8 +309,70 @@ Penyelesaian :
 # Soal 6
 Agar dapat tetap dihubungi ketika DNS Server Yudhistira bermasalah, buat juga Werkudara sebagai DNS Slave untuk domain utama.
 
+Penyelesaian :
+1. Tambahkan konfigurasi /etc/bind/named.conf.local
+```
+	zone "arjuna.e27.com" {
+        type master;
+	notify yes;
+        also-notify { 10.50.3.2; }; // IP Werkudara
+        allow-transfer { 10.50.3.2; }; // IP Werkudara
+        file "/etc/bind/jarkom/arjuna.e27.com";
+	};
+
+	zone "abimanyu.e27.com" {
+        type master;
+	notify yes;
+        also-notify { 10.50.3.2; }; // IP Werkudara
+        allow-transfer { 10.50.3.2; }; // IP Werkudara
+        file "/etc/bind/jarkom/abimanyu.e27.com";
+	};
+
+   	zone "2.50.10.in-addr.arpa" {
+    	type master;
+    	file "/etc/bind/jarkom/2.50.10.in-addr.arpa";
+	};
+```
+
+2. Install bind9 pada DNS Slave
+   ```
+   apt-get update
+   apt-get install bind9
+   ```
+
+3. Konfigurasi
+   ```
+	zone "arjuna.e27.com" {
+    	type slave;
+    	masters { 10.50.2.2; }; // IP Yudhistira
+    	file "/var/lib/bind/arjuna.e27.com";
+	};
+
+	zone "abimanyu.e27.com" {
+    	type slave;
+    	masters { 10.50.2.2; }; // IP Yudhistira
+    	file "/var/lib/bind/abimanyu.e27.com";
+	};
+
+   ```
+
+4. Restart bind9
+   ```
+   service bind9 restart
+   ```
+
+5. Hentikan service bind9 pada DNS Master
+   ```
+   service bind9 stop
+   ```
+
+Lakukan ping arjuna.e27.com dan abimanyu.e27.com pada client dengan nameserver IP werkudara.
+
 # Soal 7
 Seperti yang kita tahu karena banyak sekali informasi yang harus diterima, buatlah subdomain khusus untuk perang yaitu baratayuda.abimanyu.yyy.com dengan alias www.baratayuda.abimanyu.yyy.com yang didelegasikan dari Yudhistira ke Werkudara dengan IP menuju ke Abimanyu dalam folder Baratayuda.
+
+Penyelesaian :
+
 
 # Soal 8
 Untuk informasi yang lebih spesifik mengenai Ranjapan Baratayuda, buatlah subdomain melalui Werkudara dengan akses rjp.baratayuda.abimanyu.yyy.com dengan alias www.rjp.baratayuda.abimanyu.yyy.com yang mengarah ke Abimanyu.
