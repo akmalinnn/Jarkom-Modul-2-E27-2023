@@ -511,12 +511,6 @@ service bind9 restart
 Arjuna merupakan suatu Load Balancer Nginx dengan tiga worker yaitu Prabakusuma, Abimanyu, dan Wisanggeni. Lakukan deployment pada masing-masing worker.
 
 Penyelesaian :
-## Soal 9
-
-> (Arjuna merupakan suatu Load Balancer Nginx dengan tiga worker yaitu Prabakusuma, Abimanyu, dan Wisanggeni. Lakukan deployment pada masing-masing worker.)
-
-### Scripts
-
 1. Jalankan command berikut pada node Prabukusuma.
 
 ```
@@ -770,7 +764,7 @@ service nginx restart
 
 ## Soal 10
 
-1. Ubah konfigurasi file `/etc/nginx/sites-available/jarkom` pada node Prabukusuma.
+1. Ubah konfigurasi file /etc/nginx/sites-available/jarkom pada node Prabukusuma.
 
 ```
 echo '
@@ -811,7 +805,7 @@ echo '
 
 ```
 
-2. Ubah konfigurasi file `/etc/nginx/sites-available/jarkom` pada node Abimanyu.
+2. Ubah konfigurasi file /etc/nginx/sites-available/jarkom pada node Abimanyu.
 
 ```
 echo '
@@ -851,7 +845,7 @@ echo '
 ' > /etc/nginx/sites-available/jarkom
 ```
 
-3. Ubah konfigurasi file `/etc/nginx/sites-available/jarkom` pada node Wisanggeni.
+3. Ubah konfigurasi file /etc/nginx/sites-available/jarkom pada node Wisanggeni.
 
 ```
 echo '
@@ -939,5 +933,14 @@ service nginx restart
 1. lakukan `lynx arjuna.e27.com`.
 
 
-## Soal 11
+# Soal 11
+# Soal 12
+# Soal 13
+# Soal 14
+# Soal 15
+# Soal 16
+# Soal 17
+# Soal 18
+# Soal 19
+# Soal 20
 
