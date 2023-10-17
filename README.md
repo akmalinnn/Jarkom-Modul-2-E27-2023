@@ -220,8 +220,36 @@ Untuk melakukan pengecekan apakah berhasil atau tidak, Lakukan ping menuju arjun
 # Soal 4
 Kemudian, karena terdapat beberapa web yang harus di-deploy, buatlah subdomain parikesit.abimanyu.yyy.com yang diatur DNS-nya di Yudhistira dan mengarah ke Abimanyu.
 
+Penyelesaian :
+
+1. Konfigurasi file /etc/bind/jarkom/abimanyu.e27.com pada node Yudhistira
+   ```
+	;
+	; BIND data file for local loopback interface
+	;
+	$TTL    604800
+	@       IN      SOA     abimanyu.e27.com. root.abimanyu.e27.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+	;
+	@       	IN      NS      abimanyu.e27.com.
+	@       	IN      A       10.50.2.4 ; IP Abimanyu
+	www     	IN      CNAME   abimanyu.e27.com.
+   	parikesit	IN	A	10.50.2.4
+   	www.parikesit	IN	CNAME	parikesit.abimanyu.e27.com
+	@       	IN      AAAA    ::1
+   ```
+
+Untuk melakukan pengecekan apakah berhasil atau tidak, Lakukan ping menuju parikesit.abimanyu.e27.com atau www.parikesit.abimanyu.e27.com pada node client.
+
 # Soal 5
 Buat juga reverse domain untuk domain utama.
+
+Penyelesaian :
+
 
 # Soal 6
 Agar dapat tetap dihubungi ketika DNS Server Yudhistira bermasalah, buat juga Werkudara sebagai DNS Slave untuk domain utama.
