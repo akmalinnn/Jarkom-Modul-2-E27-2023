@@ -479,4 +479,31 @@ Lakukan ping ke baratayuda.abimanyu.a07.com dan www.baratayuda.abimanyu.a07.com
 Untuk informasi yang lebih spesifik mengenai Ranjapan Baratayuda, buatlah subdomain melalui Werkudara dengan akses rjp.baratayuda.abimanyu.yyy.com dengan alias www.rjp.baratayuda.abimanyu.yyy.com yang mengarah ke Abimanyu.
 
 Penyelesaian :
-1. 
+1. Tambahkan konfigurasi berikut pada file /etc/bind/named.conf.local pada node DNS Slave.
+
+```
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     baratayuda.abimanyu.e27.com. root.baratayuda.abimanyu.e27.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@                       IN      NS      baratayuda.abimanyu.a07.com.
+@                       IN      A       10.50.3.4 ; IP Abimanyu
+www                     IN      CNAME   baratayuda.abimanyu.a07.com.
+rjp                     IN      A       10.50.3.4 ; IP Abimanyu
+www.rjp                 IN      CNAME   rjp.baratayuda.abimanyu.e27.com.
+@                       IN      AAAA    ::1
+
+
+```
+
+2. Lakukan restart bind9 pada DNS Slave.
+
+```
+service bind9 restart
+```
