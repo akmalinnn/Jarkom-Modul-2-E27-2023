@@ -372,7 +372,111 @@ Lakukan ping arjuna.e27.com dan abimanyu.e27.com pada client dengan nameserver I
 Seperti yang kita tahu karena banyak sekali informasi yang harus diterima, buatlah subdomain khusus untuk perang yaitu baratayuda.abimanyu.yyy.com dengan alias www.baratayuda.abimanyu.yyy.com yang didelegasikan dari Yudhistira ke Werkudara dengan IP menuju ke Abimanyu dalam folder Baratayuda.
 
 Penyelesaian :
+1. Konfigurasi /etc/bind/jarkom/abimanyu.e27.com pada DNS Master
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     abimanyu.e27.com. root.abimanyu.e27.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@              IN      NS      abimanyu.e27.com.
+@              IN      A       10.50.3.4
+www            IN      CNAME   abimanyu.e27.com.
+parikesit      IN      A       10.50.3.4
+www.parikesit  IN      CNAME   parikesit.abimanyu.e27.com.
+baratayuda     IN      NS      ns1.abimanyu.e27.com.
+ns1            IN      A       10.50.3.2      ; IP Werkudara
+@       IN      AAAA    ::1
 
+```
+
+2. Konfigurasi /etc/bind/named.conf.options pada node DNS Master.
+```
+options {
+        directory "/var/cache/bind";
+        allow-query{any;};
+
+        listen-on-v6 { any; };
+};
+```
+
+3. Restart bind9
+```
+service bind9 restart
+```
+
+4. Konfigurasi /etc/bind/named.conf.local pada DNS Slave.
+```
+zone "arjuna.e27.com" {
+    	type slave;
+    	masters { 10.50.2.2; }; // IP Yudhistira
+    	file "/var/lib/bind/arjuna.e27.com";
+	};
+
+	zone "abimanyu.e27.com" {
+    	type slave;
+    	masters { 10.50.2.2; }; // IP Yudhistira
+    	file "/var/lib/bind/abimanyu.e27.com";
+	};
+
+	zone "baratayuda.abimanyu.e27.com" {
+    	type master;
+ 	file "/etc/bind/baratayuda/baratayuda.abimanyu.e27.com";
+};
+
+```
+
+5. Konfigurasi /etc/bind/baratayuda/baratayuda.abimanyu.e27.com
+```
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     baratayuda.abimanyu.e27.com. root.baratayuda.abimanyu.e27.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@                       IN      NS      baratayuda.abimanyu.e27.com.
+@                       IN      A       10.50.3.4 ; IP Abimanyu
+www                     IN      CNAME   baratayuda.abimanyu.e27.com.
+@                       IN      AAAA    ::1
+
+```
+
+6. Konfigurasi /etc/bind/named.conf.options pada node DNS Slave.
+```
+options {
+        directory "/var/cache/bind";
+
+        allow-query{any;};
+
+        listen-on-v6 { any; };
+};
+
+```
+
+7. Restart bind9
+```
+service bind9 restart
+```
+
+8. Stop bind9
+```
+service bind9 stop
+```
+
+Lakukan ping ke baratayuda.abimanyu.a07.com dan www.baratayuda.abimanyu.a07.com
 
 # Soal 8
 Untuk informasi yang lebih spesifik mengenai Ranjapan Baratayuda, buatlah subdomain melalui Werkudara dengan akses rjp.baratayuda.abimanyu.yyy.com dengan alias www.rjp.baratayuda.abimanyu.yyy.com yang mengarah ke Abimanyu.
+
+Penyelesaian :
+1. 
