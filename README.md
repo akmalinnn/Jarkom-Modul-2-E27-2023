@@ -473,7 +473,7 @@ service bind9 restart
 service bind9 stop
 ```
 
-Lakukan ping ke baratayuda.abimanyu.a07.com dan www.baratayuda.abimanyu.a07.com
+Lakukan ping ke baratayuda.abimanyu.e27.com dan www.baratayuda.abimanyu.e27.com
 
 # Soal 8
 Untuk informasi yang lebih spesifik mengenai Ranjapan Baratayuda, buatlah subdomain melalui Werkudara dengan akses rjp.baratayuda.abimanyu.yyy.com dengan alias www.rjp.baratayuda.abimanyu.yyy.com yang mengarah ke Abimanyu.
@@ -507,3 +507,437 @@ www.rjp                 IN      CNAME   rjp.baratayuda.abimanyu.e27.com.
 ```
 service bind9 restart
 ```
+# Soal 9
+Arjuna merupakan suatu Load Balancer Nginx dengan tiga worker yaitu Prabakusuma, Abimanyu, dan Wisanggeni. Lakukan deployment pada masing-masing worker.
+
+Penyelesaian :
+## Soal 9
+
+> (Arjuna merupakan suatu Load Balancer Nginx dengan tiga worker yaitu Prabakusuma, Abimanyu, dan Wisanggeni. Lakukan deployment pada masing-masing worker.)
+
+### Scripts
+
+1. Jalankan command berikut pada node Prabukusuma.
+
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+
+
+apt-get update && apt install nginx php php-fpm -y
+
+
+# Buat folder jarkom
+mkdir /var/www/jarkom
+
+
+# echo ke file /var/www/jarkom/index.php
+echo '<?php
+echo "Hello World from prabukusuma";
+?>' > /var/www/jarkom/index.php
+
+
+echo '
+ server {
+
+
+        listen 8001;
+
+
+        root /var/www/jarkom;
+
+
+        index index.php index.html index.htm;
+        server_name _;
+
+
+        location / {
+                        try_files $uri $uri/ /index.php?$query_string;
+        }
+
+
+        # pass PHP scripts to FastCGI server
+        location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+        }
+
+
+ location ~ /\.ht {
+                        deny all;
+        }
+
+
+        error_log /var/log/nginx/jarkom_error.log;
+        access_log /var/log/nginx/jarkom_access.log;
+ }
+' > /etc/nginx/sites-available/jarkom
+
+
+ln -s /etc/nginx/sites-available/jarkom /etc/nginx/sites-enabled/jarkom
+
+
+rm /etc/nginx/sites-enabled/default
+
+
+
+
+service nginx restart
+service php7.0-fpm stop
+service php7.0-fpm start
+
+```
+
+2. Jalankan command berikut pada node Abimanyu.
+
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+
+
+apt-get update && apt install nginx php php-fpm -y
+
+
+# Buat folder jarkom
+mkdir /var/www/jarkom
+
+
+# echo ke file /var/www/jarkom/index.php
+echo '<?php
+echo "Hello World from abimanyu";
+?>' > /var/www/jarkom/index.php
+
+
+
+
+echo '
+ server {
+
+
+  listen 8002;
+
+
+  root /var/www/jarkom;
+
+
+  index index.php index.html index.htm;
+  server_name _;
+
+
+  location / {
+      try_files $uri $uri/ /index.php?$query_string;
+  }
+
+
+  # pass PHP scripts to FastCGI server
+  location ~ \.php$ {
+  include snippets/fastcgi-php.conf;
+  fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+  }
+
+
+    location ~ /\.ht {
+      deny all;
+  }
+
+
+  error_log /var/log/nginx/jarkom_error.log;
+  access_log /var/log/nginx/jarkom_access.log;
+ }
+' > /etc/nginx/sites-available/jarkom
+
+
+
+
+ln -s /etc/nginx/sites-available/jarkom /etc/nginx/sites-enabled/jarkom
+rm /etc/nginx/sites-enabled/default
+
+
+service nginx restart
+service php7.0-fpm stop
+service php7.0-fpm start
+
+```
+
+3. Jalankan command berikut pada node Wisanggeni.
+
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+
+
+apt-get update && apt install nginx php php-fpm -y
+
+
+# Buat folder jarkom
+mkdir /var/www/jarkom
+
+
+# echo ke file /var/www/jarkom/index.php
+echo '<?php
+echo "Hello World from wisanggeni";
+?>' > /var/www/jarkom/index.php
+
+
+echo '
+ server {
+
+
+        listen 8003;
+
+
+        root /var/www/jarkom;
+
+
+        index index.php index.html index.htm;
+        server_name _;
+
+
+        location / {
+                        try_files $uri $uri/ /index.php?$query_string;
+        }
+
+
+        # pass PHP scripts to FastCGI server
+        location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+        }
+
+
+ location ~ /\.ht {
+                        deny all;
+        }
+
+
+        error_log /var/log/nginx/jarkom_error.log;
+        access_log /var/log/nginx/jarkom_access.log;
+ }
+' > /etc/nginx/sites-available/jarkom
+
+
+ln -s /etc/nginx/sites-available/jarkom /etc/nginx/sites-enabled/jarkom
+
+
+rm /etc/nginx/sites-enabled/default
+
+
+
+
+service nginx restart
+service php7.0-fpm stop
+service php7.0-fpm start
+
+```
+
+4. Jalankan command berikut pada node Load Balancer.
+
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+
+
+apt-get update
+
+
+# Install bind9
+apt-get install bind9 nginx -y
+
+
+echo ' # Default menggunakan Round Robin
+ upstream myweb  {
+  server 10.50.3.5 #IP Prabukusuma
+  server 10.50.3.4 #IP Abimanyu
+  server 10.50.3.6 #IP Wisanggeni
+ }
+
+
+ server {
+  listen 80;
+  server_name arjuna.e27.com www.arjuna.e27.com;
+
+
+  location / {
+  proxy_pass http://myweb;
+  }
+ }' > /etc/nginx/sites-available/lb-jarkom
+
+
+ln -s /etc/nginx/sites-available/lb-jarkom /etc/nginx/sites-enabled/lb-jarkom
+
+
+
+
+service nginx restart
+
+```
+
+## Soal 10
+
+1. Ubah konfigurasi file `/etc/nginx/sites-available/jarkom` pada node Prabukusuma.
+
+```
+echo '
+ server {
+
+
+        listen 8002;
+
+
+        root /var/www/jarkom;
+
+
+        index index.php index.html index.htm;
+        server_name _;
+
+
+        location / {
+                        try_files $uri $uri/ /index.php?$query_string;
+        }
+
+
+        # pass PHP scripts to FastCGI server
+        location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+        }
+
+
+ location ~ /\.ht {
+                        deny all;
+        }
+
+
+        error_log /var/log/nginx/jarkom_error.log;
+        access_log /var/log/nginx/jarkom_access.log;
+ }
+' > /etc/nginx/sites-available/jarkom
+
+```
+
+2. Ubah konfigurasi file `/etc/nginx/sites-available/jarkom` pada node Abimanyu.
+
+```
+echo '
+ server {
+
+
+  listen 8001;
+
+
+  root /var/www/jarkom;
+
+
+  index index.php index.html index.htm;
+  server_name _;
+
+
+  location / {
+      try_files $uri $uri/ /index.php?$query_string;
+  }
+
+
+  # pass PHP scripts to FastCGI server
+  location ~ \.php$ {
+  include snippets/fastcgi-php.conf;
+  fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+  }
+
+
+    location ~ /\.ht {
+      deny all;
+  }
+
+
+  error_log /var/log/nginx/jarkom_error.log;
+  access_log /var/log/nginx/jarkom_access.log;
+ }
+' > /etc/nginx/sites-available/jarkom
+```
+
+3. Ubah konfigurasi file `/etc/nginx/sites-available/jarkom` pada node Wisanggeni.
+
+```
+echo '
+ server {
+
+
+        listen 8003;
+
+
+        root /var/www/jarkom;
+
+
+        index index.php index.html index.htm;
+        server_name _;
+
+
+        location / {
+                        try_files $uri $uri/ /index.php?$query_string;
+        }
+
+
+        # pass PHP scripts to FastCGI server
+        location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+        }
+
+
+ location ~ /\.ht {
+                        deny all;
+        }
+
+
+        error_log /var/log/nginx/jarkom_error.log;
+        access_log /var/log/nginx/jarkom_access.log;
+ }
+' > /etc/nginx/sites-available/jarkom
+
+```
+
+4. Jalankan command berikut pada node Load Balancer.
+
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+
+
+apt-get update
+
+
+# Install bind9
+apt-get install bind9 nginx -y
+
+
+echo ' # Default menggunakan Round Robin
+ upstream myweb  {
+  server 10.50.3.5:8001; #IP Prabukusuma
+  server 10.50.3.4:8002; #IP Abimanyu
+  server 10.50.3.6:8003; #IP Wisanggeni
+ }
+
+
+ server {
+  listen 80;
+  server_name arjuna.e27.com www.arjuna.e27.com;
+
+
+  location / {
+  proxy_pass http://myweb;
+  }
+ }' > /etc/nginx/sites-available/lb-jarkom
+
+
+ln -s /etc/nginx/sites-available/lb-jarkom /etc/nginx/sites-enabled/lb-jarkom
+
+
+
+
+service nginx restart
+
+
+```
+
+### Bukti
+
+1. lakukan `lynx arjuna.e27.com`.
+
+
+## Soal 11
+
