@@ -1036,16 +1036,104 @@ service apache2 restart
 
 Pada subdomain tersebut folder /public hanya dapat melakukan directory listing sedangkan pada folder /secret tidak dapat diakses (403 Forbidden).
 
+```
+echo -e '<VirtualHost *:80>
+  ServerAdmin webmaster@localhost
+  DocumentRoot /var/www/parikesit.abimanyu.e27
+  ServerName parikesit.abimanyu.e27.com
+  ServerAlias www.parikesit.abimanyu.e27.com
+
+  <Directory /var/www/parikesit.abimanyu.e27/public>
+          Options +Indexes
+  </Directory>
+
+  <Directory /var/www/parikesit.abimanyu.e27/secret>
+          Options -Indexes
+  </Directory>
+
+  Alias "/public" "/var/www/parikesit.abimanyu.e27/public"
+  Alias "/secret" "/var/www/parikesit.abimanyu.e27/secret"
+  Alias "/js" "/var/www/parikesit.abimanyu.e27/public/js"
+
+  ErrorDocument 404 /error/404.html
+  ErrorDocument 403 /error/403.html
+
+  ErrorLog ${APACHE_LOG_DIR}/error.log
+  CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>' > /etc/apache2/sites-available/parikesit.abimanyu.e27.com.conf
+
+service apache2 restart
+
+```
+
 # Soal 15
 
 Buatlah kustomisasi halaman error pada folder /error untuk mengganti error kode pada Apache. Error kode yang perlu diganti adalah 404 Not Found dan 403 Forbidden.
 Buatlah suatu konfigurasi virtual host agar file asset
 
+```
+echo -e '<VirtualHost *:80>
+  ServerAdmin webmaster@localhost
+  DocumentRoot /var/www/parikesit.abimanyu.e27
+  ServerName parikesit.abimanyu.e27.com
+  ServerAlias www.parikesit.abimanyu.e27.com
+
+  ErrorLog ${APACHE_LOG_DIR}/error.log
+  CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>' > /etc/apache2/sites-available/parikesit.abimanyu.e27.com.conf
+
+a2ensite parikesit.abimanyu.e27.com.conf
+
+service apache2 restart
+```
+
 # Soal 16
 Buatlah suatu konfigurasi virtual host agar file asset www.parikesit.abimanyu.yyy.com/public/js menjadi 
 www.parikesit.abimanyu.yyy.com/js 
+
+```
+	Alias "/public" "/var/www/parikesit.abimanyu.e27/public"
+  Alias "/secret" "/var/www/parikesit.abimanyu.e27/secret"
+  Alias "/js" "/var/www/parikesit.abimanyu.e27/public/js"
+```
 
 
 # Soal 17
 Agar aman, buatlah konfigurasi agar www.rjp.baratayuda.abimanyu.yyy.com hanya dapat diakses melalui port 14000 dan 14400.
 
+```
+echo -e '<VirtualHost *:14000 *:14400>
+  ServerAdmin webmaster@localhost
+  DocumentRoot /var/www/rjp.baratayuda.abimanyu.e27
+  ServerName rjp.baratayuda.abimanyu.e27.com
+  ServerAlias www.rjp.baratayuda.abimanyu.e27.com
+
+  ErrorDocument 404 /error/404.html
+  ErrorDocument 403 /error/403.html
+
+  ErrorLog ${APACHE_LOG_DIR}/error.log
+  CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>' > /etc/apache2/sites-available/rjp.baratayuda.abimanyu.e27.com.conf
+
+echo -e '# If you just change the port or add more ports here, you will likely also
+# have to change the VirtualHost statement in
+# /etc/apache2/sites-enabled/000-default.conf
+
+Listen 80
+Listen 14000
+Listen 14400
+
+<IfModule ssl_module>
+        Listen 443
+</IfModule>
+
+<IfModule mod_gnutls.c>
+        Listen 443
+</IfModule>
+
+
+a2ensite rjp.baratayuda.abimanyu.e27.com.conf
+
+service apache2 restart
+
+```
