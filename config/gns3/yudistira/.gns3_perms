@@ -1,0 +1,13 @@
+755:0:0:/root/.nano
+644:0:0:/root/subdomain.sh
+644:0:0:/root/.gns3_perms
+644:0:0:/root/delegasi.sh
+644:0:0:/root/dnsslave.sh
+644:0:0:/root/dns.sh
+644:0:0:/root/.profile
+644:0:0:/root/yudistira_nginx.sh
+644:0:0:/root/reversedns.sh
+644:0:0:/root/.bashrc
+600:0:0:/root/.bash_history
+644:0:0:/root/yudistira_apache.sh
+700:0:0:/root
